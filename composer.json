@@ -17,8 +17,7 @@
     "require": {
         "illuminate/support": "~5.1",
         "php" : ">=5.3.0",
-        "google/apiclient": "~1.1",
-        "ignited/flysystem-google-drive": "@dev"
+        "league/flysystem-dropbox": "*"
     },
     "require-dev": {
         "phpunit/phpunit" : "4.*",

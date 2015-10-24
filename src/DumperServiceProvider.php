@@ -2,6 +2,7 @@
 
 namespace Tudorica\Dumper;
 
+use Ignited\Flysystem\GoogleDrive\GoogleDriveAdapter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use League\Flysystem\Filesystem;
@@ -13,7 +14,6 @@ class DumperServiceProvider extends ServiceProvider
 {
 	/**
 	 * Register any application services.
-	 *
 	 * @return void
 	 */
 	public function register()
@@ -22,11 +22,13 @@ class DumperServiceProvider extends ServiceProvider
 
 		$databaseController = new DatabaseController();
 
-		$this->app->singleton('command.dumper.dump', function($app) use ($databaseController) {
+		$this->app->singleton('command.dumper.dump', function ($app) use ($databaseController)
+		{
 			return new DumpCommand($databaseController);
 		});
 
-		$this->app->singleton('google.api.client', function($app) {
+		$this->app->singleton('google.api.client', function ($app)
+		{
 			return new GoogleClient();
 		});
 
@@ -35,7 +37,6 @@ class DumperServiceProvider extends ServiceProvider
 
 	/**
 	 * Bootstrap any application services.
-	 *
 	 * @return void
 	 */
 	public function boot()
@@ -45,17 +46,18 @@ class DumperServiceProvider extends ServiceProvider
 		                 ]);
 
 
-		Storage::extend('googledrive', function($app, $config) {
+		Storage::extend('googledrive', function ($app, $config)
+		{
 
 			$client = new Google_Client();
-			$client->setClientId('594736589538-ldagttqbo5lhe6ucbbf78mo84r5t78pm.apps.googleusercontent.com');
-			$client->setClientSecret('vWq8f6TmVun1jaOtx9ZnMq1E');
-			$client->setAccessToken('{
-				  "access_token":"xxxx",
-				  "expires_in":3920,
-				  "token_type":"Bearer",
-				  "created":'.time().'
-				}');
+			$client->setClientId($config['client_id']);
+			$client->setClientSecret($config['secret']);
+			$client->setAccessToken(json_encode([
+				                                    'access_token' => $config['token'],
+				                                    'expires_in'   => 3920,
+				                                    'token_type'   => 'Bearer',
+				                                    'created'      => time()
+			                                    ]));
 
 			$service = new Google_Service_Drive($client);
 
