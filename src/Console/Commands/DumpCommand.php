@@ -3,6 +3,7 @@
 namespace Tudorica\Dumper\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 use Tudorica\Dumper\Database\MysqlDatabase;
 use Tudorica\Dumper\DatabaseController;
 
@@ -53,13 +54,13 @@ class DumpCommand extends Command
 	 */
 	public function handle()
 	{
+		$this->comment('Loading database...');
+		$this->loadDatabase();
+
 		$this->comment('Loading dump destination path...');
 		$this->checkDumpDestination();
 		$this->filename = date('YmdHis') . '.' . $this->database->getExtension();
 		$this->filepath = preg_replace('/(\/+)/', '/', config('dumper.local_path') . '/' . $this->filename);
-
-		$this->comment('Loading database...');
-		$this->loadDatabase();
 
 		$this->comment('Dumping data...');
 
@@ -68,6 +69,8 @@ class DumpCommand extends Command
 		if($success === true)
 		{
 			$this->comment('Uploading to cloud...');
+
+			$storage = Storage::disk('googledrive')->write('file.sql', file_get_contents($this->filepath));
 			// copy to google
 
 			$this->comment('Deleting temporary backup...');

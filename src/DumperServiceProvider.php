@@ -4,7 +4,10 @@ namespace Tudorica\Dumper;
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
+use League\Flysystem\Filesystem;
 use Tudorica\Dumper\Console\Commands\DumpCommand;
+use Google_Client;
+use Google_Service_Drive;
 
 class DumperServiceProvider extends ServiceProvider
 {
@@ -41,14 +44,23 @@ class DumperServiceProvider extends ServiceProvider
 			                 __DIR__ . '/../config/config.php' => config_path('dumper.php'),
 		                 ]);
 
-		/*
-		Storage::extend('googledrive', function($app, $config) {
-			$client = new GoogleDriveClient(
-				$config['accessToken'], $config['clientIdentifier']
-			);
 
-			return new Filesystem(new DropboxAdapter($client));
+		Storage::extend('googledrive', function($app, $config) {
+
+			$client = new Google_Client();
+			$client->setClientId('594736589538-ldagttqbo5lhe6ucbbf78mo84r5t78pm.apps.googleusercontent.com');
+			$client->setClientSecret('vWq8f6TmVun1jaOtx9ZnMq1E');
+			$client->setAccessToken('{
+				  "access_token":"xxxx",
+				  "expires_in":3920,
+				  "token_type":"Bearer",
+				  "created":'.time().'
+				}');
+
+			$service = new Google_Service_Drive($client);
+
+			return new Filesystem(new GoogleDriveAdapter($service));
 		});
-		*/
+
 	}
 }
