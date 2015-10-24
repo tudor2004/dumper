@@ -18,7 +18,7 @@
         "illuminate/support": "~5.1",
         "php" : ">=5.3.0",
         "google/apiclient": "~1.1",
-        "ignited/flysystem-google-drive": "dev-master"
+        "ignited/flysystem-google-drive": "@dev"
     },
     "require-dev": {
         "phpunit/phpunit" : "4.*",
@@ -34,7 +34,6 @@
             "Tudorica\\Dumper\\Test\\": "tests"
         }
     },
-    "minimum-stability": "dev",
     "scripts": {
         "test": "phpunit"
     },
