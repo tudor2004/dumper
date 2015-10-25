@@ -2,6 +2,6 @@
 
 return [
 
-	'local_path' => storage_path('app/dumper/'),
+	'local_path' => '/dumper/', // relative to filesystem local config
 
 ];

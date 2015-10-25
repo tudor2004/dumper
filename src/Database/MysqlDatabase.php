@@ -1,7 +1,5 @@
 <?php namespace Tudorica\Dumper\Database;
 
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Facades\Storage;
 use Tudorica\Dumper\Shell;
 
 /**

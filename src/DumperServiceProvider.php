@@ -2,13 +2,12 @@
 
 namespace Tudorica\Dumper;
 
-use Ignited\Flysystem\GoogleDrive\GoogleDriveAdapter;
+use Dropbox\Client;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
+use League\Flysystem\Dropbox\DropboxAdapter;
 use League\Flysystem\Filesystem;
 use Tudorica\Dumper\Console\Commands\DumpCommand;
-use Google_Client;
-use Google_Service_Drive;
 
 class DumperServiceProvider extends ServiceProvider
 {
@@ -27,11 +26,6 @@ class DumperServiceProvider extends ServiceProvider
 			return new DumpCommand($databaseController);
 		});
 
-		$this->app->singleton('google.api.client', function ($app)
-		{
-			return new GoogleClient();
-		});
-
 		$this->commands('command.dumper.dump');
 	}
 
@@ -45,23 +39,11 @@ class DumperServiceProvider extends ServiceProvider
 			                 __DIR__ . '/../config/config.php' => config_path('dumper.php'),
 		                 ]);
 
-
-		Storage::extend('googledrive', function ($app, $config)
+		Storage::extend('dropbox', function ($app, $config)
 		{
+			$client = new Client($config['access_token'], $config['secret']);
 
-			$client = new Google_Client();
-			$client->setClientId($config['client_id']);
-			$client->setClientSecret($config['secret']);
-			$client->setAccessToken(json_encode([
-				                                    'access_token' => $config['token'],
-				                                    'expires_in'   => 3920,
-				                                    'token_type'   => 'Bearer',
-				                                    'created'      => time()
-			                                    ]));
-
-			$service = new Google_Service_Drive($client);
-
-			return new Filesystem(new GoogleDriveAdapter($service));
+			return new Filesystem(new DropboxAdapter($client));
 		});
 
 	}

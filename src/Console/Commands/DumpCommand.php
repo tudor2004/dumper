@@ -44,7 +44,6 @@ class DumpCommand extends Command
 	public function __construct(DatabaseController $databaseController)
 	{
 		parent::__construct();
-
 		$this->databaseController = $databaseController;
 	}
 
@@ -55,26 +54,29 @@ class DumpCommand extends Command
 	public function handle()
 	{
 		$this->comment('Loading database...');
-		$this->loadDatabase();
+
+		$this->database = $this->databaseController->getDatabase();
 
 		$this->comment('Loading dump destination path...');
-		$this->checkDumpDestination();
+
+		Storage::disk('local')->makeDirectory(config('dumper.local_path'));
+
 		$this->filename = date('YmdHis') . '.' . $this->database->getExtension();
-		$this->filepath = preg_replace('/(\/+)/', '/', config('dumper.local_path') . '/' . $this->filename);
+		$this->filepath = preg_replace('/(\/+)/', '/', '/' . config('dumper.local_path') . '/' . $this->filename);
 
 		$this->comment('Dumping data...');
 
-		$success = $this->database->dump($this->filepath);
+		$success = $this->database->dump(storage_path('app') . $this->filepath);
 
 		if($success === true)
 		{
 			$this->comment('Uploading to cloud...');
 
-			$storage = Storage::disk('googledrive')->write('file.sql', file_get_contents($this->filepath));
-			// copy to google
+			Storage::disk('dropbox')->write($this->filename, Storage::disk('local')->get($this->filepath));
 
 			$this->comment('Deleting temporary backup...');
-			// delete folder
+
+			Storage::disk('local')->delete($this->filepath);
 
 			$this->info('All done!');
 		}
@@ -83,18 +85,4 @@ class DumpCommand extends Command
 			$this->error(sprintf("\n" . 'Database backup failed. %s' . "\n", $success));
 		}
 	}
-
-	private function checkDumpDestination()
-	{
-		if(!is_dir(config('dumper.local_path')))
-		{
-			mkdir(config('dumper.local_path'));
-		}
-	}
-
-	private function loadDatabase()
-	{
-		$this->database = $this->databaseController->getDatabase();
-	}
-
 }
