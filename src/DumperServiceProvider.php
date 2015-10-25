@@ -35,9 +35,9 @@ class DumperServiceProvider extends ServiceProvider
 	 */
 	public function boot()
 	{
-		$this->publishes([
+		/* $this->publishes([
 			                 __DIR__ . '/../config/config.php' => config_path('dumper.php'),
-		                 ]);
+		                 ]); */
 
 		Storage::extend('dropbox', function ($app, $config)
 		{
